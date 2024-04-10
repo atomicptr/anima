@@ -1,6 +1,7 @@
 package anima_raylib
 
 import ".."
+import "../anima_fsm"
 import rl "vendor:raylib"
 
 draw :: proc(
@@ -24,4 +25,17 @@ draw :: proc(
 		rotation,
 		color,
 	)
+}
+
+fsm_draw :: proc(
+	$Ident: typeid,
+	self: ^anima_fsm.FSM(Ident),
+	texture: rl.Texture,
+	x: f32,
+	y: f32,
+	rotation: f32 = 0.0,
+	color: rl.Color = rl.WHITE,
+) {
+	animation := anima_fsm.current_animation(Ident, self)
+	draw(animation, texture, x, y, rotation, color)
 }

@@ -148,6 +148,8 @@ new_animation :: proc(
 	duration: f32,
 	playing: bool = true,
 	oneshot: bool = false,
+	flip_h: bool = false,
+	flip_v: bool = false,
 	on_finished: Maybe(OnFinishedFunc) = nil,
 ) -> ^Animation {
 	anim := new(Animation)
@@ -155,6 +157,8 @@ new_animation :: proc(
 	anim.duration = duration
 	anim.playing = playing
 	anim.oneshot = oneshot
+	anim.flip_h = flip_h
+	anim.flip_v = flip_v
 	anim.index = 0
 	anim.time = 0.0
 	anim.on_finished = nil

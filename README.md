@@ -19,6 +19,7 @@ Copy the ``anima`` directory somewhere into your project as this is the package,
 Check out one of the examples:
 
 - [anim8 1945 example](./examples/anim8_1945/main.odin) (port of the anim8 demo)
+- [cat fighter fsm](./examples/cat_fighter_fsm) - Animations with a finite state machine
 
 ### Simple Example
 
@@ -131,6 +132,11 @@ anima.destroy_animation(animation)
 after you are done with it.
 
 The animation structs also has a flip\_h and flip\_v property in case you want to flip the sprite.
+
+## Assets
+
+- examples/anim8_1945/assets/1945.png - [Widgetworx Spritelib](http://www.widgetworx.com/widgetworx/portfolio/spritelib.html)
+- examples/cat_fighter_fsm/assets/cat_fighter.pn - [dogchicken from opengameart.org](https://opengameart.org/content/cat-fighter-sprite-sheet)
 
 ## License
 
