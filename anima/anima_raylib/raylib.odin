@@ -28,14 +28,13 @@ draw :: proc(
 }
 
 fsm_draw :: proc(
-	$Ident: typeid,
-	self: ^anima_fsm.FSM(Ident),
+	self: ^anima_fsm.FSM($Ident),
 	texture: rl.Texture,
 	x: f32,
 	y: f32,
 	rotation: f32 = 0.0,
 	color: rl.Color = rl.WHITE,
 ) {
-	animation := anima_fsm.current_animation(Ident, self)
+	animation := anima_fsm.current_animation(self)
 	draw(animation, texture, x, y, rotation, color)
 }

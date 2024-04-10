@@ -54,62 +54,58 @@ main :: proc() {
 	g := anima.new_grid(50, 50, uint(texture.width), uint(texture.height))
 
 	cat := anima_fsm.create(CatAnim)
-	defer anima_fsm.destroy(CatAnim, cat)
+	defer anima_fsm.destroy(cat)
 
 	anima_fsm.add(
-		CatAnim,
 		cat,
 		CatAnim.PunchRight,
 		anima.new_animation(anima.grid_frames(&g, "6-9", 3), anim_speed),
 	)
 	anima_fsm.add(
-		CatAnim,
 		cat,
 		CatAnim.PunchLeft,
 		anima.new_animation(anima.grid_frames(&g, "6-9", 3), anim_speed, flip_v = true),
 	)
 	anima_fsm.add(
-		CatAnim,
 		cat,
 		CatAnim.KickLeft,
 		anima.new_animation(anima.grid_frames(&g, "0-9", 4, "8-1", 4), anim_speed),
 	)
 	anima_fsm.add(
-		CatAnim,
 		cat,
 		CatAnim.KickRight,
 		anima.new_animation(anima.grid_frames(&g, "0-9", 4, "8-1", 4), anim_speed, flip_v = true),
 	)
 
-	anima_fsm.play(CatAnim, cat, CatAnim.PunchRight)
+	anima_fsm.play(cat, CatAnim.PunchRight)
 
 	for !rl.WindowShouldClose() {
 		dt := rl.GetFrameTime()
 
 		if rl.IsKeyPressed(rl.KeyboardKey.Q) {
-			anima_fsm.play(CatAnim, cat, CatAnim.PunchLeft)
+			anima_fsm.play(cat, CatAnim.PunchLeft)
 		}
 
 		if rl.IsKeyPressed(rl.KeyboardKey.W) {
-			anima_fsm.play(CatAnim, cat, CatAnim.PunchRight)
+			anima_fsm.play(cat, CatAnim.PunchRight)
 		}
 
 		if rl.IsKeyPressed(rl.KeyboardKey.A) {
-			anima_fsm.play(CatAnim, cat, CatAnim.KickRight)
+			anima_fsm.play(cat, CatAnim.KickRight)
 		}
 
 		if rl.IsKeyPressed(rl.KeyboardKey.S) {
-			anima_fsm.play(CatAnim, cat, CatAnim.KickLeft)
+			anima_fsm.play(cat, CatAnim.KickLeft)
 		}
 
-		anima_fsm.update(CatAnim, cat, dt)
+		anima_fsm.update(cat, dt)
 
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.BLACK)
 
 		rl.BeginMode2D(camera)
 
-		anima_raylib.fsm_draw(CatAnim, cat, texture, 100, 100)
+		anima_raylib.fsm_draw(cat, texture, 100, 100)
 
 		rl.DrawText("Q/W to punch left/right, A/S to kick left/right", 10, 10, 10, rl.GREEN)
 
