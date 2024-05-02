@@ -1,6 +1,5 @@
 package anima
 
-import "core:fmt"
 import "core:strconv"
 import "core:strings"
 
@@ -22,19 +21,17 @@ new_grid :: proc(
 	top: uint = 0,
 	border: uint = 0,
 ) -> Grid {
-	return(
-		 {
-			frame_width,
-			frame_height,
-			image_width,
-			image_height,
-			left,
-			top,
-			image_width / frame_width,
-			image_height / frame_height,
-			border,
-		} \
-	)
+	return {
+		frame_width,
+		frame_height,
+		image_width,
+		image_height,
+		left,
+		top,
+		image_width / frame_width,
+		image_height / frame_height,
+		border,
+	}
 }
 
 Interval :: struct {
@@ -98,11 +95,6 @@ grid_frames :: proc(grid: ^Grid, intervals: ..IntervalT) -> []FrameRect {
 	for i := 0; i < len(intervals); i += 2 {
 		column := parse_interval(intervals[i])
 		row := parse_interval(intervals[i + 1])
-
-		c_start := int(column.from)
-		c_end := int(column.to)
-		r_start := int(row.from)
-		r_end := int(row.to)
 
 		cond := proc(index: int, interval: Interval) -> bool {
 			if interval.forward {
