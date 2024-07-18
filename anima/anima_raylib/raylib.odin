@@ -11,11 +11,12 @@ draw :: proc(
 	y: f32,
 	rotation: f32 = 0.0,
 	color: rl.Color = rl.WHITE,
+	flip_x, flip_y: bool,
 ) {
 	frame := anima.current_frame(self)
 
-	flip_x: f32 = self.flip_v ? -1.0 : 1.0
-	flip_y: f32 = self.flip_h ? -1.0 : 1.0
+	flip_x: f32 = (self.flip_v || flip_x) ? -1.0 : 1.0
+	flip_y: f32 = (self.flip_h || flip_y) ? -1.0 : 1.0
 
 	rl.DrawTexturePro(
 		texture,
@@ -34,7 +35,9 @@ fsm_draw :: proc(
 	y: f32,
 	rotation: f32 = 0.0,
 	color: rl.Color = rl.WHITE,
+	flip_x: bool = false,
+	flip_y: bool = false,
 ) {
 	animation := anima_fsm.current_animation(self)
-	draw(animation, texture, x, y, rotation, color)
+	draw(animation, texture, x, y, rotation, color, flip_x, flip_y)
 }
