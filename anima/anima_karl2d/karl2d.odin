@@ -33,7 +33,7 @@ fsm_draw :: proc(
 	x: f32,
 	y: f32,
 	rotation: f32 = 0.0,
-	color: k2.Color = rl.WHITE,
+	color: k2.Color = k2.WHITE,
 ) {
 	animation := anima_fsm.current_animation(self)
 	draw(animation, texture, x, y, rotation, color)
