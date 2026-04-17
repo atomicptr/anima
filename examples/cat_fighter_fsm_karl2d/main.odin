@@ -102,7 +102,9 @@ main :: proc() {
 
 		anima_karl2d.fsm_draw(cat, texture, 100, 100)
 
-		k2.draw_text("Q/W to punch left/right, A/S to kick left/right", {10, 10}, 10, k2.GREEN)
+		k2.set_camera(nil)
+
+		k2.draw_text("Q/W to punch left/right, A/S to kick left/right", {10, 10}, 20, k2.GREEN)
 
 		k2.present()
 	}
