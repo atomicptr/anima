@@ -1,4 +1,4 @@
-package anima_raylib
+package anima_karl2d
 
 import ".."
 import k2 "../../../karl2d"
