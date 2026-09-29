@@ -165,9 +165,9 @@ new_animation :: proc(
 	anim.oneshot = oneshot
 	anim.flip_h = flip_h
 	anim.flip_v = flip_v
+	anim.on_finished = on_finished
 	anim.index = 0
 	anim.time = 0.0
-	anim.on_finished = nil
 
 	return anim
 }
@@ -188,13 +188,15 @@ update :: proc(self: ^Animation, dt: f32) {
 		self.index = (self.index + 1) % u32(len(self.frames))
 		self.time = 0.0
 
-		on_finished, ok := self.on_finished.(OnFinishedFunc)
-		if ok {
-			on_finished(self)
-		}
+		if self.index == 0 {
+			on_finished, ok := self.on_finished.(OnFinishedFunc)
+			if ok {
+				on_finished(self)
+			}
 
-		if self.oneshot {
-			self.playing = false
+			if self.oneshot {
+				self.playing = false
+			}
 		}
 	}
 }
@@ -243,53 +245,53 @@ test_update_advances_index :: proc(t: ^testing.T) {
 	testing.expect_value(t, anim.index, u32(2))
 }
 
-// @(private)
-// test_on_finished_count: int
-//
-// @(private)
-// test_on_finished :: proc(_: ^Animation) {
-// 	test_on_finished_count += 1
-// }
-//
-// @(test)
-// test_on_finished_fires_when_index_loops_to_zero :: proc(t: ^testing.T) {
-// 	test_on_finished_count = 0
-//
-// 	grid := new_grid(16, 16, 64, 16)
-// 	frames := grid_frames(
-// 		&grid,
-// 		"0-3",
-// 		0,
-// 		allocator = context.temp_allocator,
-// 		temp_allocator = context.temp_allocator,
-// 	)
-//
-// 	anim := new_animation(
-// 		frames,
-// 		0.1,
-// 		on_finished = test_on_finished,
-// 		allocator = context.temp_allocator,
-// 	)
-// 	defer destroy_animation(anim, context.temp_allocator)
-//
-// 	testing.expect(t, anim.on_finished != nil)
-//
-// 	update(anim, 0.1)
-// 	update(anim, 0.1)
-// 	update(anim, 0.1)
-//
-// 	testing.expect_value(t, anim.index, u32(3))
-// 	testing.expect_value(t, test_on_finished_count, 0)
-//
-// 	update(anim, 0.1)
-//
-// 	testing.expect_value(t, anim.index, u32(0))
-// 	testing.expect_value(t, test_on_finished_count, 1)
-// 	testing.expect_value(t, anim.playing, true)
-//
-// 	for _ in 0 ..< 4 {
-// 		update(anim, 0.1)
-// 	}
-//
-// 	testing.expect_value(t, test_on_finished_count, 2)
-// }
+@(private)
+test_on_finished_count: int
+
+@(private)
+test_on_finished :: proc(_: ^Animation) {
+	test_on_finished_count += 1
+}
+
+@(test)
+test_on_finished_fires_when_index_loops_to_zero :: proc(t: ^testing.T) {
+	test_on_finished_count = 0
+
+	grid := new_grid(16, 16, 64, 16)
+	frames := grid_frames(
+		&grid,
+		"0-3",
+		0,
+		allocator = context.temp_allocator,
+		temp_allocator = context.temp_allocator,
+	)
+
+	anim := new_animation(
+		frames,
+		0.1,
+		on_finished = test_on_finished,
+		allocator = context.temp_allocator,
+	)
+	defer destroy_animation(anim, context.temp_allocator)
+
+	testing.expect(t, anim.on_finished != nil)
+
+	update(anim, 0.1)
+	update(anim, 0.1)
+	update(anim, 0.1)
+
+	testing.expect_value(t, anim.index, u32(3))
+	testing.expect_value(t, test_on_finished_count, 0)
+
+	update(anim, 0.1)
+
+	testing.expect_value(t, anim.index, u32(0))
+	testing.expect_value(t, test_on_finished_count, 1)
+	testing.expect_value(t, anim.playing, true)
+
+	for _ in 0 ..< 4 {
+		update(anim, 0.1)
+	}
+
+	testing.expect_value(t, test_on_finished_count, 2)
+}
