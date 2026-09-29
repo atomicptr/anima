@@ -4,15 +4,36 @@
 
 pkgs.mkShell {
   buildInputs = with pkgs; [
-    pkg-config
-    odin
-
     alsa-lib
     libGL
-    libGLU
-    raylib
+    libx11
+    libxcursor
+    libxi
+    libxinerama
+    libxkbcommon
+    libxrandr
+    odin
     systemd
     wayland
-    libx11
   ];
+
+  shellHook = ''
+    export LD_LIBRARY_PATH="${
+      pkgs.lib.makeLibraryPath (
+        with pkgs;
+        [
+          wayland
+          libx11
+          libxcursor
+          libxrandr
+          libxi
+          libxinerama
+          libGL
+          libxkbcommon
+          alsa-lib
+          systemd
+        ]
+      )
+    }:$LD_LIBRARY_PATH"
+  '';
 }

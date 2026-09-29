@@ -17,7 +17,7 @@ draw :: proc(
 	flip_x: f32 = self.flip_v ? -1.0 : 1.0
 	flip_y: f32 = self.flip_h ? -1.0 : 1.0
 
-	k2.draw_texture_ex(
+	k2.draw_texture_fit(
 		texture,
 		{f32(frame.x), f32(frame.y), flip_x * f32(frame.width), flip_y * f32(frame.height)},
 		{x, y, f32(frame.width), f32(frame.height)},
@@ -38,4 +38,3 @@ fsm_draw :: proc(
 	animation := anima_fsm.current_animation(self)
 	draw(animation, texture, x, y, rotation, color)
 }
-

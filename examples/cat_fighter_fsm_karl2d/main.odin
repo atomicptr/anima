@@ -45,7 +45,7 @@ main :: proc() {
 	texture := k2.load_texture_from_file("assets/cat_fighter.png")
 	defer k2.destroy_texture(texture)
 
-	camera := k2.Camera{0, 0, 0, 2.0}
+	camera := k2.Camera{0, 0, 0, 2.0, false}
 
 	g := anima.new_grid(50, 50, uint(texture.width), uint(texture.height))
 
@@ -109,4 +109,3 @@ main :: proc() {
 		k2.present()
 	}
 }
-
