@@ -2,8 +2,8 @@
   pkgs ? import <nixpkgs> { },
 }:
 
-pkgs.mkShell {
-  buildInputs = with pkgs; [
+let
+  libs = with pkgs; [
     alsa-lib
     libGL
     libx11
@@ -12,28 +12,20 @@ pkgs.mkShell {
     libxinerama
     libxkbcommon
     libxrandr
-    odin
+    raylib
     systemd
     wayland
   ];
+in
+pkgs.mkShell {
+  buildInputs =
+    with pkgs;
+    [
+      odin
+    ]
+    ++ libs;
 
   shellHook = ''
-    export LD_LIBRARY_PATH="${
-      pkgs.lib.makeLibraryPath (
-        with pkgs;
-        [
-          wayland
-          libx11
-          libxcursor
-          libxrandr
-          libxi
-          libxinerama
-          libGL
-          libxkbcommon
-          alsa-lib
-          systemd
-        ]
-      )
-    }:$LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath (libs)}:$LD_LIBRARY_PATH"
   '';
 }
