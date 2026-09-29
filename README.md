@@ -8,6 +8,9 @@ Inspired by the LÖVE library [anim8](https://github.com/kikito/anim8)
 
 This library is implemented to be renderer agnostic, however there is a raylib implementation available in ``anima/anima_raylib``.
 
+- `vendor:raylib` available via `import "anima/anima_raylib"`
+- [karl2d](https://karl2d.com/) available via `import "anima/anima_karl2d"`, karl2d **must** be put side by side with the anima root module
+
 ## Installation
 
 Copy the ``anima`` directory somewhere into your project as this is the package, feel free to delete the sub directories inside that you do not need like ``anima/anima_raylib`` if you for instance do not use raylib.
@@ -20,6 +23,7 @@ Check out one of the examples:
 
 - [anim8 1945 example](./examples/anim8_1945/main.odin) (port of the anim8 demo)
 - [cat fighter fsm](./examples/cat_fighter_fsm) - Animations with a finite state machine
+- [cat fighter fsm karl2d](./examples/cat_fighter_fsm_karl2d) - Animations with a finite state machine (in karl2d)
 
 ### Simple Example
 
@@ -109,7 +113,7 @@ anima.grid_frames(
   // .... this is a variadic function so this can take as many arguments as you want
 )
 
-### Animations 
+### Animations
 
 Animations are a group of frames that change after a set duration
 
@@ -123,7 +127,7 @@ animation := anima.new_animation(
 )
 ```
 
-new_animation returns a pointer to an animation so you also have to call 
+new_animation returns a pointer to an animation so you also have to call
 
 ```odin
 anima.destroy_animation(animation)
