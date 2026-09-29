@@ -1,7 +1,9 @@
+#+vet explicit-allocators
 package anima
 
 import "core:strconv"
 import "core:strings"
+import "core:testing"
 
 Grid :: struct {
 	frame_width:  uint,
@@ -47,24 +49,27 @@ IntervalT :: union {
 }
 
 @(private)
-parse_interval :: proc(interval: IntervalT) -> Interval {
+parse_interval :: proc(interval: IntervalT, allocator := context.temp_allocator) -> Interval {
 	switch res in interval {
 	case Interval:
 		return res
 	case uint:
 		return {res, res, true}
 	case string:
-		return parse_interval_string(res)
+		return parse_interval_string(res, allocator)
 	}
 
 	// TODO: this should not happen
-	return parse_interval(0)
+	return parse_interval(0, allocator)
 }
 
 @(private)
-parse_interval_string :: proc(interval_str: string) -> Interval {
-	parts := strings.split(interval_str, "-")
-	defer delete(parts)
+parse_interval_string :: proc(
+	interval_str: string,
+	temp_allocator := context.temp_allocator,
+) -> Interval {
+	parts := strings.split(interval_str, "-", temp_allocator)
+	defer delete(parts, temp_allocator)
 	assert(len(parts) == 2, "Could not parse interval string from, expected format 'X-Y'")
 
 	a, a_ok := strconv.parse_uint(parts[0])
@@ -87,17 +92,22 @@ FrameRect :: struct {
 	height: uint,
 }
 
-grid_frames :: proc(grid: ^Grid, intervals: ..IntervalT) -> []FrameRect {
+grid_frames :: proc(
+	grid: ^Grid,
+	intervals: ..IntervalT,
+	allocator := context.allocator,
+	temp_allocator := context.temp_allocator,
+) -> []FrameRect {
 	assert(
 		len(intervals) % 2 == 0,
 		"Intervals are interpreted as (column, row) pairs but you did not provide an even amount of parameters",
 	)
 
-	frames := make([dynamic]FrameRect)
+	frames := make([dynamic]FrameRect, allocator)
 
 	for i := 0; i < len(intervals); i += 2 {
-		column := parse_interval(intervals[i])
-		row := parse_interval(intervals[i + 1])
+		column := parse_interval(intervals[i], temp_allocator)
+		row := parse_interval(intervals[i + 1], temp_allocator)
 
 		cond := proc(index: int, interval: Interval) -> bool {
 			if interval.forward {
@@ -146,8 +156,9 @@ new_animation :: proc(
 	flip_h: bool = false,
 	flip_v: bool = false,
 	on_finished: Maybe(OnFinishedFunc) = nil,
+	allocator := context.allocator,
 ) -> ^Animation {
-	anim := new(Animation)
+	anim := new(Animation, allocator)
 	anim.frames = frames
 	anim.duration = duration
 	anim.playing = playing
@@ -161,9 +172,9 @@ new_animation :: proc(
 	return anim
 }
 
-destroy_animation :: proc(self: ^Animation) {
-	delete(self.frames)
-	free(self)
+destroy_animation :: proc(self: ^Animation, allocator := context.allocator) {
+	delete(self.frames, allocator)
+	free(self, allocator)
 }
 
 update :: proc(self: ^Animation, dt: f32) {
@@ -191,3 +202,94 @@ update :: proc(self: ^Animation, dt: f32) {
 current_frame :: proc(self: ^Animation) -> ^FrameRect {
 	return &self.frames[self.index]
 }
+
+@(test)
+test_grid_frames :: proc(t: ^testing.T) {
+	grid := new_grid(16, 16, 64, 16)
+	frames := grid_frames(
+		&grid,
+		"0-3",
+		0,
+		allocator = context.temp_allocator,
+		temp_allocator = context.temp_allocator,
+	)
+	defer delete(frames, context.temp_allocator)
+
+	testing.expect_value(t, len(frames), 4)
+	testing.expect_value(t, frames[0], FrameRect{0, 0, 16, 16})
+	testing.expect_value(t, frames[1], FrameRect{16, 0, 16, 16})
+	testing.expect_value(t, frames[2], FrameRect{32, 0, 16, 16})
+	testing.expect_value(t, frames[3], FrameRect{48, 0, 16, 16})
+}
+
+@(test)
+test_update_advances_index :: proc(t: ^testing.T) {
+	grid := new_grid(16, 16, 64, 16)
+	frames := grid_frames(
+		&grid,
+		"0-3",
+		0,
+		allocator = context.temp_allocator,
+		temp_allocator = context.temp_allocator,
+	)
+
+	anim := new_animation(frames, 0.1, allocator = context.temp_allocator)
+	defer destroy_animation(anim, context.temp_allocator)
+
+	update(anim, 0.1)
+	testing.expect_value(t, anim.index, u32(1))
+
+	update(anim, 0.1)
+	testing.expect_value(t, anim.index, u32(2))
+}
+
+// @(private)
+// test_on_finished_count: int
+//
+// @(private)
+// test_on_finished :: proc(_: ^Animation) {
+// 	test_on_finished_count += 1
+// }
+//
+// @(test)
+// test_on_finished_fires_when_index_loops_to_zero :: proc(t: ^testing.T) {
+// 	test_on_finished_count = 0
+//
+// 	grid := new_grid(16, 16, 64, 16)
+// 	frames := grid_frames(
+// 		&grid,
+// 		"0-3",
+// 		0,
+// 		allocator = context.temp_allocator,
+// 		temp_allocator = context.temp_allocator,
+// 	)
+//
+// 	anim := new_animation(
+// 		frames,
+// 		0.1,
+// 		on_finished = test_on_finished,
+// 		allocator = context.temp_allocator,
+// 	)
+// 	defer destroy_animation(anim, context.temp_allocator)
+//
+// 	testing.expect(t, anim.on_finished != nil)
+//
+// 	update(anim, 0.1)
+// 	update(anim, 0.1)
+// 	update(anim, 0.1)
+//
+// 	testing.expect_value(t, anim.index, u32(3))
+// 	testing.expect_value(t, test_on_finished_count, 0)
+//
+// 	update(anim, 0.1)
+//
+// 	testing.expect_value(t, anim.index, u32(0))
+// 	testing.expect_value(t, test_on_finished_count, 1)
+// 	testing.expect_value(t, anim.playing, true)
+//
+// 	for _ in 0 ..< 4 {
+// 		update(anim, 0.1)
+// 	}
+//
+// 	testing.expect_value(t, test_on_finished_count, 2)
+// }
