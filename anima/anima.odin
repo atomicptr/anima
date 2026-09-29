@@ -67,8 +67,11 @@ parse_interval_string :: proc(interval_str: string) -> Interval {
 	defer delete(parts)
 	assert(len(parts) == 2, "Could not parse interval string from, expected format 'X-Y'")
 
-	a := uint(strconv.atoi(parts[0]))
-	b := uint(strconv.atoi(parts[1]))
+	a, a_ok := strconv.parse_uint(parts[0])
+	assert(a_ok)
+
+	b, b_ok := strconv.parse_uint(parts[1])
+	assert(b_ok)
 
 	if a > b {
 		return {a, b, false}
