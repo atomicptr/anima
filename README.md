@@ -6,9 +6,10 @@ Inspired by the LÖVE library [anim8](https://github.com/kikito/anim8)
 
 ## Compatibility
 
-This library is implemented to be renderer agnostic, however there is a raylib implementation available in ``anima/anima_raylib``.
+This library is implemented to be renderer agnostic, however there are a few renderer implementations available for:
 
 - `vendor:raylib` available via `import "anima/anima_raylib"`
+- `vendor:sdl3` available via `import "anima/anima_sdl3"`
 - [karl2d](https://karl2d.com/) available via `import "anima/anima_karl2d"`, karl2d **must** be put side by side with the anima root module
 
 ## Installation
