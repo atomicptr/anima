@@ -49,27 +49,23 @@ IntervalT :: union {
 }
 
 @(private)
-parse_interval :: proc(interval: IntervalT, allocator := context.temp_allocator) -> Interval {
+parse_interval :: proc(interval: IntervalT) -> Interval {
 	switch res in interval {
 	case Interval:
 		return res
 	case uint:
 		return {res, res, true}
 	case string:
-		return parse_interval_string(res, allocator)
+		return parse_interval_string(res)
 	}
 
 	// TODO: this should not happen
-	return parse_interval(0, allocator)
+	return parse_interval(0)
 }
 
 @(private)
-parse_interval_string :: proc(
-	interval_str: string,
-	temp_allocator := context.temp_allocator,
-) -> Interval {
-	parts := strings.split(interval_str, "-", temp_allocator)
-	defer delete(parts, temp_allocator)
+parse_interval_string :: proc(interval_str: string) -> Interval {
+	parts := strings.split(interval_str, "-", context.temp_allocator)
 	assert(len(parts) == 2, "Could not parse interval string from, expected format 'X-Y'")
 
 	a, a_ok := strconv.parse_uint(parts[0])
@@ -96,7 +92,6 @@ grid_frames :: proc(
 	grid: ^Grid,
 	intervals: ..IntervalT,
 	allocator := context.allocator,
-	temp_allocator := context.temp_allocator,
 ) -> []FrameRect {
 	assert(
 		len(intervals) % 2 == 0,
@@ -106,8 +101,8 @@ grid_frames :: proc(
 	frames := make([dynamic]FrameRect, allocator)
 
 	for i := 0; i < len(intervals); i += 2 {
-		column := parse_interval(intervals[i], temp_allocator)
-		row := parse_interval(intervals[i + 1], temp_allocator)
+		column := parse_interval(intervals[i])
+		row := parse_interval(intervals[i + 1])
 
 		cond := proc(index: int, interval: Interval) -> bool {
 			if interval.forward {
@@ -207,15 +202,10 @@ current_frame :: proc(self: ^Animation) -> ^FrameRect {
 
 @(test)
 test_grid_frames :: proc(t: ^testing.T) {
+	defer free_all(context.temp_allocator)
+
 	grid := new_grid(16, 16, 64, 16)
-	frames := grid_frames(
-		&grid,
-		"0-3",
-		0,
-		allocator = context.temp_allocator,
-		temp_allocator = context.temp_allocator,
-	)
-	defer delete(frames, context.temp_allocator)
+	frames := grid_frames(&grid, "0-3", 0, allocator = context.temp_allocator)
 
 	testing.expect_value(t, len(frames), 4)
 	testing.expect_value(t, frames[0], FrameRect{0, 0, 16, 16})
@@ -226,14 +216,10 @@ test_grid_frames :: proc(t: ^testing.T) {
 
 @(test)
 test_update_advances_index :: proc(t: ^testing.T) {
+	defer free_all(context.temp_allocator)
+
 	grid := new_grid(16, 16, 64, 16)
-	frames := grid_frames(
-		&grid,
-		"0-3",
-		0,
-		allocator = context.temp_allocator,
-		temp_allocator = context.temp_allocator,
-	)
+	frames := grid_frames(&grid, "0-3", 0, allocator = context.temp_allocator)
 
 	anim := new_animation(frames, 0.1, allocator = context.temp_allocator)
 	defer destroy_animation(anim, context.temp_allocator)
@@ -255,16 +241,12 @@ test_on_finished :: proc(_: ^Animation) {
 
 @(test)
 test_on_finished_fires_when_index_loops_to_zero :: proc(t: ^testing.T) {
+	defer free_all(context.temp_allocator)
+
 	test_on_finished_count = 0
 
 	grid := new_grid(16, 16, 64, 16)
-	frames := grid_frames(
-		&grid,
-		"0-3",
-		0,
-		allocator = context.temp_allocator,
-		temp_allocator = context.temp_allocator,
-	)
+	frames := grid_frames(&grid, "0-3", 0, allocator = context.temp_allocator)
 
 	anim := new_animation(
 		frames,
