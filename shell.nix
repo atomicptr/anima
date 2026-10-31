@@ -13,6 +13,8 @@ let
     libxkbcommon
     libxrandr
     raylib
+    sdl3
+    sdl3-image
     systemd
     wayland
   ];

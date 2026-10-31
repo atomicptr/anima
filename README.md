@@ -22,8 +22,9 @@ Copy the ``anima`` directory somewhere into your project as this is the package,
 Check out one of the examples:
 
 - [anim8 1945 example](./examples/anim8_1945/main.odin) (port of the anim8 demo)
-- [cat fighter fsm](./examples/cat_fighter_fsm) - Animations with a finite state machine
+- [cat fighter fsm raylib](./examples/cat_fighter_fsm_raylib) - Animations with a finite state machine (in raylib)
 - [cat fighter fsm karl2d](./examples/cat_fighter_fsm_karl2d) - Animations with a finite state machine (in karl2d)
+- [cat fighter fsm sdl3](./examples/cat_fighter_fsm_sdl3) - Animations with a finite state machine (in sdl3)
 
 ### Simple Example
 
@@ -139,8 +140,8 @@ The animation structs also has a flip\_h and flip\_v property in case you want t
 
 ## Assets
 
-- examples/anim8_1945/assets/1945.png - [Widgetworx Spritelib](http://www.widgetworx.com/widgetworx/portfolio/spritelib.html)
-- examples/cat_fighter_fsm/assets/cat_fighter.pn - [dogchicken from opengameart.org](https://opengameart.org/content/cat-fighter-sprite-sheet)
+- assets/1945.png - [Widgetworx Spritelib](http://www.widgetworx.com/widgetworx/portfolio/spritelib.html)
+- assets/cat_fighter.png - [dogchicken from opengameart.org](https://opengameart.org/content/cat-fighter-sprite-sheet)
 
 ## License
 
